@@ -1,0 +1,34 @@
+# Node modules
+node_modules/
+
+# Build output
+build/
+
+# Logi
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Środowisko lokalne
+.env
+
+# Systemowe pliki (Windows, macOS)
+.DS_Store
+Thumbs.db
+
+# Folder testowy pokrywający raporty itp.
+coverage/
+
+# cache
+.cache/
+
+# IDE / edytory (np. VSCode)
+.vscode/
+
+# Pliki tymczasowe
+*.tmp
+*.temp
+
+# pliki lock
+package-lock.json
+yarn.lock
