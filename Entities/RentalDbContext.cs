@@ -21,6 +21,9 @@ public class RentalDbContext : DbContext
         modelBuilder.Entity<Equipment>()
             .HasIndex(e => e.SerialNumber)
             .IsUnique();
+        modelBuilder.Entity<Equipment>()
+            .Property(e => e.Status)
+            .HasConversion<string>(); 
         
         modelBuilder.Entity<Reservation>()
             .HasOne(r => r.User)

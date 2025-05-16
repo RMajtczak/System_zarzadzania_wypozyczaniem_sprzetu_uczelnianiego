@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wypożyczlania_sprzętu.Entities;
 
@@ -11,9 +12,11 @@ using Wypożyczlania_sprzętu.Entities;
 namespace Wypożyczlania_sprzętu.Migrations
 {
     [DbContext(typeof(RentalDbContext))]
-    partial class RentalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515114427_ConvertStatusEnumToString")]
+    partial class ConvertStatusEnumToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace Wypożyczlania_sprzętu.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Condition")
+                    b.Property<string>("ConditionOnReturn")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -39,9 +42,6 @@ namespace Wypożyczlania_sprzętu.Migrations
 
                     b.Property<int>("EquipmentId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsReturned")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");

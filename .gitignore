@@ -1,10 +1,21 @@
-# Node modules
-node_modules/
+# Visual Studio / Rider / JetBrains
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.iml
 
 # Build output
+bin/
+obj/
 build/
 
+# Node modules (jeśli frontend)
+node_modules/
+
 # Logi
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -16,19 +27,16 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Folder testowy pokrywający raporty itp.
+# Folder testowy i pokrycie testów
 coverage/
 
-# cache
+# Cache
 .cache/
-
-# IDE / edytory (np. VSCode)
-.vscode/
 
 # Pliki tymczasowe
 *.tmp
 *.temp
 
-# pliki lock
+# Pliki lock (npm / yarn)
 package-lock.json
 yarn.lock

@@ -23,6 +23,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<RentalDbContext>();
 builder.Services.AddScoped<EquipmentSeeder>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+builder.Services.AddScoped<IBorrowingService, BorrowingService>();
 builder.Services.AddAutoMapper(typeof(Program));
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
