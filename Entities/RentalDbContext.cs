@@ -10,13 +10,17 @@ public class RentalDbContext : DbContext
     public DbSet<FaultReport> FaultReports { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
     public DbSet<NotificationLog> NotificationLogs { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
+            .Property(u => u.Email)
+            .IsRequired();
+        modelBuilder.Entity<Role>()
+            .Property(r => r.Name)
+            .IsRequired();
         
         modelBuilder.Entity<Equipment>()
             .HasIndex(e => e.SerialNumber)

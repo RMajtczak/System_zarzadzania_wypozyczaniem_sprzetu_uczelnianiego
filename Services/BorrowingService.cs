@@ -11,13 +11,13 @@ public interface IBorrowingService
     BorrowingDto GetBorrowingById(int id);
     int AddBorrow(AddBorrowDto dto);
     bool DeleteBorrowing(int id);
+    bool Return(int id);
 
 }
 public class BorrowingService : IBorrowingService
 {
     private readonly IMapper _mapper;
     private readonly RentalDbContext _dbContext;
-    private IBorrowingService _borrrowingServiceImplementation;
 
 
     public BorrowingService(IMapper mapper, RentalDbContext dbContext)
@@ -31,8 +31,8 @@ public class BorrowingService : IBorrowingService
             .Include(b => b.Equipment)
             .Include(b => b.User)
             .ToList();
-        var borrowingDtos = _mapper.Map<List<BorrowingDto>>(borrowings);
-        return borrowingDtos;
+        var borrowingDto = _mapper.Map<List<BorrowingDto>>(borrowings);
+        return borrowingDto;
     }
     public BorrowingDto GetBorrowingById(int id)
     {
@@ -56,12 +56,17 @@ public class BorrowingService : IBorrowingService
             throw new InvalidOperationException("Użytkownik nie istnieje.");
         }
 
+        var maxRentalDays = 14;
+        var duration = (dto.EndDate - dto.StartDate).TotalDays;
+        if (duration > maxRentalDays)
+            throw new InvalidOperationException($"Maksymalny czas wypożyczenia to {maxRentalDays} dni.");
         var borrowing = _mapper.Map<Borrowing>(dto);
         borrowing.EquipmentId = equipment.Id;
         borrowing.UserId = user.Id;
+        borrowing.StartDate = dto.StartDate;
+        borrowing.EndDate = dto.EndDate;
         borrowing.IsReturned = false;
         
-
         equipment.Status = EquipmentStatus.Borrowed;
 
         _dbContext.Borrowings.Add(borrowing);
@@ -77,6 +82,21 @@ public class BorrowingService : IBorrowingService
         _dbContext.Borrowings.Remove(borrowing);
         _dbContext.SaveChanges();
         return true;
+    }
 
+    public bool Return(int id)
+    {
+        var borrowing = _dbContext.Borrowings
+            .Include(b => b.Equipment)
+            .FirstOrDefault(r => r.Id == id);
+        if (borrowing == null)
+            throw new InvalidOperationException("Nie znaleziono wypożycznia");
+        if (borrowing.IsReturned)
+            throw new InvalidOperationException("Przedmiot jest już zwrócony");
+        borrowing.IsReturned = true;
+        borrowing.EndDate = DateTime.Now;
+        borrowing.Equipment.Status = EquipmentStatus.Available;
+        _dbContext.SaveChanges();
+        return true;
     }
 }

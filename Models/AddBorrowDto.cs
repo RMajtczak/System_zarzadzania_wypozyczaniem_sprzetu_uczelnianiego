@@ -6,4 +6,5 @@ public class AddBorrowDto
     public string BorrowerName { get; set; }
     public string Condition { get; set; }
     public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }

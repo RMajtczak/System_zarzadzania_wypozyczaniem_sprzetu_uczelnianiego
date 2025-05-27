@@ -15,44 +15,30 @@ public class EquipmentSeeder
     {
         if (_dbContext.Database.CanConnect())
         {
-            if (!_dbContext.Users.Any())
-            {
-                var users = GetUsers();
-                _dbContext.Users.AddRange(users);
-                _dbContext.SaveChanges();
-            }
-
             if (!_dbContext.Equipment.Any())
             {
                 var equipment = GetEquipment();
                 _dbContext.Equipment.AddRange(equipment);
                 _dbContext.SaveChanges();
             }
+
+            if (!_dbContext.Roles.Any())
+            {
+                var roles = GetRoles();
+                _dbContext.Roles.AddRange(roles);
+                _dbContext.SaveChanges();
+            }
         }
     }
-
-    private IEnumerable<User> GetUsers()
+    private IEnumerable<Role> GetRoles()
     {
-        var users =  new List<User>
+        var roles = new List<Role>
         {
-            new User
-            {
-                FirstName = "Rafał",
-                LastName = "Majtczak",
-                Email = "rafal.majtczak@gmail.com",
-                Role = "Admin",
-                Password = "admin123",
-            },
-            new User
-            {
-                FirstName = "Jan",
-                LastName = "Kowalski",
-                Email = "jan.kowalski@gmail.com",
-                Role = "User",
-                Password = "user123",
-            }
+            new Role() { Name = "User" },
+            new Role() { Name = "Menager" },
+            new Role() { Name = "Admin" }
         };
-        return users;
+        return roles;
     }
     private IEnumerable<Equipment> GetEquipment()
     {
