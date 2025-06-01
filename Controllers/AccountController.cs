@@ -20,4 +20,11 @@ public class AccountController: ControllerBase
         _accountService.RegisterUser(dto);
         return Ok();
     }
+
+    [HttpPost("login")]
+    public ActionResult Logiu([FromBody] LoginDto dto)
+    {
+        string token = _accountService.GenerateToken(dto);
+        return Ok(token);
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Wypożyczlania_sprzętu.Entities;
+using Wypożyczlania_sprzętu.Exceptions;
 using Wypożyczlania_sprzętu.Models;
 
 namespace Wypożyczlania_sprzętu.Services;
@@ -10,7 +11,7 @@ public interface IReservationService
     IEnumerable<ReservationDto> GetAllReservations();
     ReservationDto GetReservationById(int id);
     int CreateReservation(CreateReservationDto dto);
-    bool CancelReservation(int id);
+    void CancelReservation(int id);
 }
 
 public class ReservationService : IReservationService
@@ -38,7 +39,8 @@ public class ReservationService : IReservationService
     {
         var reservation = _dbContext.Reservations
             .FirstOrDefault(r => r.Id == id);
-        if (reservation == null) return null;
+        if (reservation == null) 
+            throw new NotFoundException("Nie znaleziono rezerwacji.");
         var reservationDto = _mapper.Map<ReservationDto>(reservation);
         return reservationDto;
     }
@@ -48,13 +50,13 @@ public class ReservationService : IReservationService
         var equipment = _dbContext.Equipment.FirstOrDefault(e => e.Name == dto.EquipmentName);
         if (equipment == null || equipment.Status != EquipmentStatus.Available)
         {
-            throw new InvalidOperationException("Sprzęt jest niedostępny lub nie istnieje.");
+            throw new NotFoundException("Sprzęt jest niedostępny lub nie istnieje.");
         }
 
         var user = _dbContext.Users.FirstOrDefault(u => (u.FirstName + " " + u.LastName) == dto.BookerName);
         if (user == null)
         {
-            throw new InvalidOperationException("Użytkownik nie istnieje.");
+            throw new NotFoundException("Użytkownik nie istnieje.");
         }
 
         var maxReservationDays = 14;
@@ -75,14 +77,14 @@ public class ReservationService : IReservationService
         _dbContext.SaveChanges();
         return reservation.Id;
     }
-    public bool CancelReservation(int id)
+    public void CancelReservation(int id)
     {
         var reservation = _dbContext.Reservations
             .Include(r => r.Equipment)
             .FirstOrDefault(r => r.Id == id);
         if (reservation == null)
         {
-            throw new InvalidOperationException("Rezerwacja nie istnieje.");
+            throw new NotFoundException("Rezerwacja nie istnieje.");
         }
         if (reservation.IsCanceled)
         {
@@ -101,6 +103,6 @@ public class ReservationService : IReservationService
         }
 
         _dbContext.SaveChanges();
-        return true;
+        
     }
 }

@@ -1,32 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import RegisterPage from './RegisterPage';
 
 function App() {
-    const [equipment, setEquipment] = useState([]);
-
-    useEffect(() => {
-        axios.get('http://localhost:5000/api/equipment')
-            .then(response => {
-                console.log('Sprzęt:', response.data);
-                setEquipment(response.data);
-            })
-            .catch(error => {
-                console.error('Błąd:', error.message);
-            });
-    }, []);
-
-
     return (
-        <div style={{ padding: '20px' }}>
-            <h1>Lista Sprzętu</h1>
-            <ul>
-                {equipment.map((item) => (
-                    <li key={item.id}>
-                        <strong>{item.name}</strong> — {item.type}, status: {item.status}
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <Router>
+            <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="*" element={<LoginPage />} /> {/* domyślnie login */}
+            </Routes>
+        </Router>
     );
 }
 

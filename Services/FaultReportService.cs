@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Wypożyczlania_sprzętu.Entities;
+using Wypożyczlania_sprzętu.Exceptions;
 using Wypożyczlania_sprzętu.Models;
 
 namespace Wypożyczlania_sprzętu.Services;
@@ -10,7 +11,7 @@ public interface IFaultReportService
     IEnumerable<FaultReportDto> GetAllFaultReports();
     FaultReportDto GetFaultReportById(int id);
     int CreateFaultReport(AddFaultReportDto dto);
-    bool ResolveFaultReport(int id);
+    void ResolveFaultReport(int id);
 }
 
 public class FaultReportService : IFaultReportService
@@ -40,7 +41,8 @@ public class FaultReportService : IFaultReportService
                 .Include(fr => fr.User)
                 .Include(fr => fr.Equipment)
                 .FirstOrDefault(fr => fr.Id == id);
-            if (faultReport == null) return null;
+            if (faultReport == null) 
+                throw new NotFoundException("Nie znaleziono zgłoszenia usterki.");
             var faultReportDto = _mapper.Map<FaultReportDto>(faultReport);
             return faultReportDto;
         }
@@ -50,13 +52,13 @@ public class FaultReportService : IFaultReportService
             var equipment = _dbContext.Equipment.FirstOrDefault(e => e.Name == dto.EquipmentName);
             if (equipment == null || equipment.Status != EquipmentStatus.Available)
             {
-                throw new InvalidOperationException("Sprzęt jest niedostępny lub nie istnieje.");
+                throw new NotFoundException("Sprzęt jest niedostępny lub nie istnieje.");
             }
 
             var user = _dbContext.Users.FirstOrDefault(u => (u.FirstName + " " + u.LastName) == dto.UserName);
             if (user == null)
             {
-                throw new InvalidOperationException("Użytkownik nie istnieje.");
+                throw new NotFoundException("Użytkownik nie istnieje.");
             }
             var faultReport = _mapper.Map<FaultReport>(dto);
             faultReport.EquipmentId = equipment.Id;
@@ -71,14 +73,13 @@ public class FaultReportService : IFaultReportService
             
         }
 
-        public bool ResolveFaultReport(int id)
+        public void ResolveFaultReport(int id)
         {
             var faultReport = _dbContext.FaultReports.FirstOrDefault(fr => fr.Id == id);
-            if (faultReport == null) return false;
+            if (faultReport == null) 
+                throw new NotFoundException("Nie znaleziono zgłoszenia usterki.");
 
             faultReport.IsResolved = true;
             _dbContext.SaveChanges();
-
-            return true;
         }
     }

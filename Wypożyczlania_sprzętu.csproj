@@ -93,6 +93,10 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="NLog" Version="5.4.0" />
+      <PackageReference Include="NLog.Config" Version="4.7.15" />
+      <PackageReference Include="NLog.Web.AspNetCore" Version="5.4.0" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
     </ItemGroup>
 
 </Project>

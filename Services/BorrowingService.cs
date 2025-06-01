@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Wypożyczlania_sprzętu.Entities;
+using Wypożyczlania_sprzętu.Exceptions;
 using Wypożyczlania_sprzętu.Models;
 
 namespace Wypożyczlania_sprzętu.Services;
@@ -10,8 +11,8 @@ public interface IBorrowingService
     IEnumerable<BorrowingDto> GetAllBorrowings();
     BorrowingDto GetBorrowingById(int id);
     int AddBorrow(AddBorrowDto dto);
-    bool DeleteBorrowing(int id);
-    bool Return(int id);
+    void DeleteBorrowing(int id);
+    void Return(int id);
 
 }
 public class BorrowingService : IBorrowingService
@@ -37,7 +38,8 @@ public class BorrowingService : IBorrowingService
     public BorrowingDto GetBorrowingById(int id)
     {
         var borrowing = _dbContext.Borrowings.FirstOrDefault(b => b.Id == id);
-        if (borrowing == null) return null;
+        if (borrowing == null) 
+            throw new NotFoundException("Nie znaleziono wypożycznia");
         var borrowingDto = _mapper.Map<BorrowingDto>(borrowing);
         return borrowingDto;
     }
@@ -47,13 +49,13 @@ public class BorrowingService : IBorrowingService
         var equipment = _dbContext.Equipment.FirstOrDefault(e => e.Name == dto.EquipmentName);
         if (equipment == null || equipment.Status != EquipmentStatus.Available)
         {
-            throw new InvalidOperationException("Sprzęt jest niedostępny lub nie istnieje.");
+            throw new NotFoundException("Sprzęt jest niedostępny lub nie istnieje.");
         }
 
         var user = _dbContext.Users.FirstOrDefault(u => (u.FirstName + " " + u.LastName) == dto.BorrowerName);
         if (user == null)
         {
-            throw new InvalidOperationException("Użytkownik nie istnieje.");
+            throw new NotFoundException("Użytkownik nie istnieje.");
         }
 
         var maxRentalDays = 14;
@@ -75,28 +77,28 @@ public class BorrowingService : IBorrowingService
         return borrowing.Id;
     }
 
-    public bool DeleteBorrowing(int id)
+    public void DeleteBorrowing(int id)
     {
         var borrowing = _dbContext.Borrowings.FirstOrDefault(r => r.Id == id);
-        if (borrowing == null) return false;
+        if (borrowing == null) 
+            throw new NotFoundException("Nie znaleziono wypożycznia");
         _dbContext.Borrowings.Remove(borrowing);
         _dbContext.SaveChanges();
-        return true;
+        
     }
 
-    public bool Return(int id)
+    public void Return(int id)
     {
         var borrowing = _dbContext.Borrowings
             .Include(b => b.Equipment)
             .FirstOrDefault(r => r.Id == id);
         if (borrowing == null)
-            throw new InvalidOperationException("Nie znaleziono wypożycznia");
+            throw new NotFoundException("Nie znaleziono wypożycznia");
         if (borrowing.IsReturned)
-            throw new InvalidOperationException("Przedmiot jest już zwrócony");
+            throw new NotFoundException("Przedmiot jest już zwrócony");
         borrowing.IsReturned = true;
         borrowing.EndDate = DateTime.Now;
         borrowing.Equipment.Status = EquipmentStatus.Available;
         _dbContext.SaveChanges();
-        return true;
     }
 }
