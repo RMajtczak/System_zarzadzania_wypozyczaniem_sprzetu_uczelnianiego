@@ -1,7 +1,9 @@
 ﻿import React, { useState } from 'react';
-import axios from './api.js'; // zakładam, że masz taki plik do axiosa
+import axios from './api.js'; 
 
 function RegisterPage() {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,16 +22,25 @@ function RegisterPage() {
 
         try {
             await axios.post('https://localhost:5001/api/account/register', {
-                email,
-                password,
+                Email: email,
+                Password: password,
+                ConfirmPassword: confirmPassword,
+                FirstName: firstName,
+                LastName: lastName,
+                RoleId: 1
             });
             setSuccess("Rejestracja przebiegła pomyślnie! Możesz się teraz zalogować.");
+            setFirstName('');
+            setLastName('');
             setEmail('');
             setPassword('');
             setConfirmPassword('');
         } catch (err) {
-            if (err.response?.data) {
-                setError(err.response.data);
+            if (err.response?.data?.errors) {
+                
+                const validationErrors = err.response.data.errors;
+                const messages = Object.values(validationErrors).flat(); 
+                setError(messages.join('\n')); 
             } else if (!err.response) {
                 setError("Brak połączenia z serwerem");
             } else {
@@ -51,6 +62,22 @@ function RegisterPage() {
             />
             <h2 className="text-2xl font-semibold mb-6">Rejestracja</h2>
             <form onSubmit={handleRegister} className="flex flex-col gap-4">
+                <input
+                    type="text"
+                    placeholder="Imię"
+                    value={firstName}
+                    required
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="p-3 border border-gray-300 rounded"
+                />
+                <input
+                    type="text"
+                    placeholder="Nazwisko"
+                    value={lastName}
+                    required
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="p-3 border border-gray-300 rounded"
+                />
                 <input
                     type="email"
                     placeholder="Email"
@@ -77,7 +104,7 @@ function RegisterPage() {
                 />
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition"
+                    className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Zarejestruj się
                 </button>

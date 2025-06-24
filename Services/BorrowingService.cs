@@ -47,7 +47,7 @@ public class BorrowingService : IBorrowingService
     public int AddBorrow(AddBorrowDto dto)
     {
         var equipment = _dbContext.Equipment.FirstOrDefault(e => e.Name == dto.EquipmentName);
-        if (equipment == null || equipment.Status != EquipmentStatus.Available)
+        if (equipment == null || equipment.Status != EquipmentStatus.Dostępny)
         {
             throw new NotFoundException("Sprzęt jest niedostępny lub nie istnieje.");
         }
@@ -69,7 +69,7 @@ public class BorrowingService : IBorrowingService
         borrowing.EndDate = dto.EndDate;
         borrowing.IsReturned = false;
         
-        equipment.Status = EquipmentStatus.Borrowed;
+        equipment.Status = EquipmentStatus.Wypożyczony;
 
         _dbContext.Borrowings.Add(borrowing);
         _dbContext.SaveChanges();
@@ -98,7 +98,7 @@ public class BorrowingService : IBorrowingService
             throw new NotFoundException("Przedmiot jest już zwrócony");
         borrowing.IsReturned = true;
         borrowing.EndDate = DateTime.Now;
-        borrowing.Equipment.Status = EquipmentStatus.Available;
+        borrowing.Equipment.Status = EquipmentStatus.Dostępny;
         _dbContext.SaveChanges();
     }
 }

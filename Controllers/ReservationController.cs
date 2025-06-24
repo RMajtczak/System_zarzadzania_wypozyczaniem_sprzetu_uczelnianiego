@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wypożyczlania_sprzętu.Entities;
 using Wypożyczlania_sprzętu.Models;
 using Wypożyczlania_sprzętu.Services;
@@ -6,6 +8,7 @@ using Wypożyczlania_sprzętu.Services;
 namespace Wypożyczlania_sprzętu.Controllers;
 [Route ("api/reservations")]
 [ApiController]
+[Authorize]
 public class ReservationController: ControllerBase
 {
     private readonly IReservationService _reservationService;
@@ -16,9 +19,10 @@ public class ReservationController: ControllerBase
     }
     
     [HttpGet]
-    public ActionResult<IEnumerable<ReservationDto>> GetAll()
+    public ActionResult<IEnumerable<ReservationDto>> GetOwn()
     {
-        var reservations = _reservationService.GetAllReservations();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var reservations = _reservationService.GetReservationsByUserId(int.Parse(userId));
         return Ok(reservations);
     }
 
@@ -29,10 +33,16 @@ public class ReservationController: ControllerBase
         return Ok(reservation);
     }
     
-    [HttpPost ]
+    [HttpPost]
     public ActionResult Create([FromBody] CreateReservationDto dto)
     {
-        var id = _reservationService.CreateReservation(dto);
+        var userName = User.Identity?.Name; // lub inny claim, np. User.FindFirst("unique_name")?.Value
+
+        if (string.IsNullOrEmpty(userName))
+        {
+            return Unauthorized("Brak autoryzacji");
+        }
+        var id = _reservationService.CreateReservation(dto, userName);
         return Created($"/api/reservations/{id}", null);
     }
     

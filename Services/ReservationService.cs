@@ -8,9 +8,9 @@ namespace Wypożyczlania_sprzętu.Services;
 
 public interface IReservationService
 {
-    IEnumerable<ReservationDto> GetAllReservations();
+    IEnumerable<ReservationDto> GetReservationsByUserId(int userId);
     ReservationDto GetReservationById(int id);
-    int CreateReservation(CreateReservationDto dto);
+    int CreateReservation(CreateReservationDto dto, string userName);
     void CancelReservation(int id);
 }
 
@@ -24,7 +24,18 @@ public class ReservationService : IReservationService
         _mapper = mapper;
         _dbContext = dbContext;
     }
+    public IEnumerable<ReservationDto> GetReservationsByUserId(int userId)
+    {
+        var now = DateTime.UtcNow;
 
+        var reservations = _dbContext.Reservations
+            .Where(r => r.UserId == userId && r.StartDate > now)
+            .Include(r => r.Equipment)
+            .ToList();
+
+        var result = _mapper.Map<List<ReservationDto>>(reservations);
+        return result;
+    }
     public IEnumerable<ReservationDto> GetAllReservations()
     {
         var reservations = _dbContext.Reservations
@@ -45,10 +56,10 @@ public class ReservationService : IReservationService
         return reservationDto;
     }
 
-    public int CreateReservation(CreateReservationDto dto)
+    public int CreateReservation(CreateReservationDto dto, string userName)
     {
         var equipment = _dbContext.Equipment.FirstOrDefault(e => e.Name == dto.EquipmentName);
-        if (equipment == null || equipment.Status != EquipmentStatus.Available)
+        if (equipment == null || equipment.Status != EquipmentStatus.Dostępny)
         {
             throw new NotFoundException("Sprzęt jest niedostępny lub nie istnieje.");
         }
@@ -72,7 +83,7 @@ public class ReservationService : IReservationService
         reservation.StartDate = dto.StartDate;
         reservation.EndDate = dto.EndDate;
         reservation.IsCanceled = false;
-        equipment.Status = EquipmentStatus.Reserved;
+        equipment.Status = EquipmentStatus.Zarezerwowany;
         _dbContext.Reservations.Add(reservation);
         _dbContext.SaveChanges();
         return reservation.Id;
@@ -88,18 +99,18 @@ public class ReservationService : IReservationService
         }
         if (reservation.IsCanceled)
         {
-            throw new InvalidOperationException("Rezerwacja już została anulowana.");
+            throw new BadRequestException("Rezerwacja została już anulowana.");
         }
         if (reservation.EndDate < DateTime.Now)
         {
-            throw new InvalidOperationException("Nie można anulować rezerwacji, która się już rozpoczęła.");
+            throw new BadRequestException("Nie można anulować rezerwacji, która się już rozpoczęła.");
         }
 
         reservation.IsCanceled = true;
         var equipment = _dbContext.Equipment.FirstOrDefault(e => e.Id == reservation.EquipmentId);
         if (equipment != null)
         {
-            equipment.Status = EquipmentStatus.Available;
+            equipment.Status = EquipmentStatus.Dostępny;
         }
 
         _dbContext.SaveChanges();

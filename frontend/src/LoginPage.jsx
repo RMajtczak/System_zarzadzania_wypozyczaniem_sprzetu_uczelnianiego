@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import axios from './api.js';
+import { jwtDecode } from 'jwt-decode';
 
 function LoginPage() {
     const [email, setEmail] = useState('');
@@ -12,21 +13,47 @@ function LoginPage() {
 
         try {
             const response = await axios.post('https://localhost:5001/api/account/login', {
-                email,
-                password
+                Email: email,
+                Password: password
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
-            const token = response.data.token;
+            console.log("Odpowiedź logowania:", response.data);
+
+            const { token, userName } = response.data;
+            localStorage.setItem("token", token);
+            localStorage.setItem("userName", userName);
+
+            if (!token) {
+                setError("Nie udało się pobrać tokena z odpowiedzi.");
+                return;
+            }
+
             localStorage.setItem('token', token);
-            alert('Zalogowano pomyślnie!');
-            // przekierowanie, np. window.location.href = '/dashboard';
+            localStorage.setItem('userName', userName);
+
+            const decodedToken = jwtDecode(token);
+            const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+            if (role === "User") {
+                window.location.href = "/user-dashboard";
+            } else if (role === "Admin") {
+                window.location.href = "/admin-dashboard";
+            } else {
+                setError("Nieznana rola użytkownika.");
+            }
+
         } catch (err) {
+            console.error("Błąd:", err);
             if (err.response?.data?.message) {
                 setError(err.response.data.message);
             } else if (!err.response) {
-                setError("Brak połączenia z serwerem");
+                setError("Brak połączenia z serwerem.");
             } else {
-                setError("Wystąpił nieznany błąd");
+                setError("Wystąpił nieznany błąd.");
             }
         }
     };
@@ -37,11 +64,12 @@ function LoginPage() {
     };
 
     return (
-        <div className="max-w-md mx-auto mt-24 p-6 border border-gray-300 rounded-lg shadow-md text-center font-sans">
+        <div 
+            className="max-w-md mx-auto mt-24 p-6 border border-gray-300 rounded-lg shadow-md text-center font-sans select-none focus:outline-none">
             <img
                 src="https://mentorme-programme.eu/wp-content/uploads/2021/02/Spoleczna-Akademia-Nauk.png"
                 alt="Logo"
-                className="w-40 h-24 mx-auto mb-4"
+                className="w-40 h-24 mx-auto mb-4 "
             />
             <h2 className="text-2xl font-semibold mb-6 ">Logowanie</h2>
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
@@ -63,7 +91,7 @@ function LoginPage() {
                 />
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Zaloguj się
                 </button>
@@ -71,7 +99,7 @@ function LoginPage() {
             {error && <p className="text-red-600 mt-3">{error}</p>}
             <p className="mt-5">
                 Nie masz konta?{' '}
-                <button onClick={handleRegisterRedirect} className="text-blue-600 underline hover:text-blue-800">
+                <button onClick={handleRegisterRedirect} className="text-blue-600 underline hover:text-blue-800 cursor-pointer">
                     Zarejestruj się
                 </button>
             </p>

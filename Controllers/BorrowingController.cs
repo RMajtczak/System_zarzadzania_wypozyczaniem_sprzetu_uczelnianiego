@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wypożyczlania_sprzętu.Models;
 using Wypożyczlania_sprzętu.Services;
 
 namespace Wypożyczlania_sprzętu.Controllers;
 [Route("api/borrowing")]
 [ApiController]
+//[Authorize(Roles = "Admin,Manager")]
 public class BorrowingController : ControllerBase
 {
     private readonly IBorrowingService _borrowingService;

@@ -50,7 +50,7 @@ public class FaultReportService : IFaultReportService
         public int CreateFaultReport(AddFaultReportDto dto)
         {
             var equipment = _dbContext.Equipment.FirstOrDefault(e => e.Name == dto.EquipmentName);
-            if (equipment == null || equipment.Status != EquipmentStatus.Available)
+            if (equipment == null || equipment.Status != EquipmentStatus.Uszkodzony)
             {
                 throw new NotFoundException("Sprzęt jest niedostępny lub nie istnieje.");
             }

@@ -22,9 +22,14 @@ public class AccountController: ControllerBase
     }
 
     [HttpPost("login")]
-    public ActionResult Logiu([FromBody] LoginDto dto)
+    public ActionResult Login([FromBody] LoginDto dto)
     {
-        string token = _accountService.GenerateToken(dto);
-        return Ok(token);
+        var tokenResponse = _accountService.GenerateToken(dto);
+
+        return Ok(new
+        {
+            token = tokenResponse.Token,
+            userName = tokenResponse.UserName
+        });
     }
 }

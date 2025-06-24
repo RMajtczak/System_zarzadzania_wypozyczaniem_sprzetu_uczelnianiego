@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NLog;
 using NLog.Web;
@@ -61,13 +62,14 @@ try
     {
         options.AddPolicy("AllowFrontend",
             policy => policy
-                .WithOrigins("http://localhost:5173")
+                .WithOrigins("http://localhost:5173", "https://localhost:5173")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials());
     });
 
-    builder.Services.AddDbContext<RentalDbContext>();
+    builder.Services.AddDbContext<RentalDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
     builder.Services.AddScoped<EquipmentSeeder>();
     builder.Services.AddScoped<IEquipmentService, EquipmentService>();
     builder.Services.AddScoped<IBorrowingService, BorrowingService>();
@@ -93,24 +95,23 @@ try
         app.UseExceptionHandler("/Home/Error");
         app.UseHsts();
     }
+    app.UseRouting();
     app.UseCors("AllowFrontend");
-    app.UseMiddleware<ErrorHandlingMiddleware>();
     app.UseAuthentication();
+    app.UseAuthorization();
+    app.UseMiddleware<ErrorHandlingMiddleware>();
     app.UseHttpsRedirection();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Wypożyczalnia Sprzętu API ");
     });
-    app.UseRouting();
     
-    app.UseAuthorization();
+    //app.MapControllerRoute(
+            //name: "default",
+            //pattern: "{controller=Home}/{action=Index}/{id?}")
+        //.WithStaticAssets();
     app.MapControllers();
-    app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}")
-        .WithStaticAssets();
-
     app.Run();
 }
 catch (Exception ex)

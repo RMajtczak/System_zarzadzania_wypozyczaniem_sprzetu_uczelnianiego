@@ -4,7 +4,9 @@ namespace Wypożyczlania_sprzętu.Entities;
 
 public class RentalDbContext : DbContext
 {
-    private readonly string _connectionstring = "Server=(localdb)\\MSSQLLocalDb;Database=WypożyczalniaSprzętuUczelnianego;TrustServerCertificate=True;MultipleActiveResultSets=true";
+    public RentalDbContext(DbContextOptions<RentalDbContext> options) : base(options)
+    {
+    }
     public DbSet<Borrowing> Borrowings { get; set; }
     public DbSet<Equipment> Equipment { get; set; }
     public DbSet<FaultReport> FaultReports { get; set; }
@@ -71,8 +73,5 @@ public class RentalDbContext : DbContext
             .HasForeignKey(n => n.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(_connectionstring);
-    }
+    
 }

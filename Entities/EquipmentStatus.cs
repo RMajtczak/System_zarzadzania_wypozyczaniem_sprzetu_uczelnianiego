@@ -2,9 +2,9 @@
 
 public enum EquipmentStatus
 {
-    Available,
-    Reserved,
-    Borrowed,
-    Serviced,
-    Damaged
+    Dostępny,
+    Zarezerwowany,
+    Wypożyczony,
+    Naprawa,
+    Uszkodzony,
 }
