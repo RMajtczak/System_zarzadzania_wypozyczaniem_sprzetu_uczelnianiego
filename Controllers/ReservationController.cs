@@ -36,7 +36,7 @@ public class ReservationController: ControllerBase
     [HttpPost]
     public ActionResult Create([FromBody] CreateReservationDto dto)
     {
-        var userName = User.Identity?.Name; // lub inny claim, np. User.FindFirst("unique_name")?.Value
+        var userName = User.Identity?.Name;
 
         if (string.IsNullOrEmpty(userName))
         {

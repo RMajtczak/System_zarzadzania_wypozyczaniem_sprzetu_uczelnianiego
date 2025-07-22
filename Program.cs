@@ -74,6 +74,7 @@ try
     builder.Services.AddScoped<IEquipmentService, EquipmentService>();
     builder.Services.AddScoped<IBorrowingService, BorrowingService>();
     builder.Services.AddScoped<IReservationService, ReservationService>();
+    builder.Services.AddHostedService<ReservationBackgroundService>();
     builder.Services.AddScoped<IFaultReportService, FaultReportService>();
     builder.Services.AddScoped<IAccountService, AccountService>();
     builder.Services.AddScoped<ErrorHandlingMiddleware>();

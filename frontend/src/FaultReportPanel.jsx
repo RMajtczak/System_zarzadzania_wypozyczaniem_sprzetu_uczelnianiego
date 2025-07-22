@@ -2,27 +2,51 @@
 import axios from './api.js';
 
 function FaultReportPanel() {
-    const [equipmentId, setEquipmentId] = useState('');
+    const [equipmentName, setEquipmentName] = useState('');
+    const [userName, setUserName]= useState('');
     const [description, setDescription] = useState('');
-    const [error, setError] = useState('');
+    const [error, setError] = useState(null); // ustawiamy null, bo to może być obiekt lub string
     const [success, setSuccess] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setError(null);
         setSuccess('');
+        
+        
 
         try {
-            await axios.post('https://localhost:5001/api/faults', {
-                equipmentId,
+            await axios.post('https://localhost:5001/api/faultreports', {
+                equipmentName,
+                userName,
                 description,
             });
             setSuccess('Usterka została zgłoszona pomyślnie.');
-            setEquipmentId('');
+            setEquipmentName('');
+            setUserName('');
             setDescription('');
         } catch (err) {
             if (err.response?.data) {
-                setError(err.response.data);
+                const data = err.response.data;
+
+                if (data.errors) {
+                    const errorsArray = [];
+                    for (const key in data.errors) {
+                        if (Object.hasOwnProperty.call(data.errors, key)) {
+                            const messages = data.errors[key];
+                            messages.forEach((msg) => {
+                                errorsArray.push(`${key}: ${msg}`);
+                            });
+                        }
+                    }
+                    setError(`${data.title}\n${errorsArray.join('\n')}`);
+                } else if (data.message) {
+                    setError(data.message);
+                } else if (data.title) {
+                    setError(data.title);
+                } else {
+                    setError("Wystąpił błąd");
+                }
             } else {
                 setError('Wystąpił błąd podczas zgłaszania usterki.');
             }
@@ -35,10 +59,18 @@ function FaultReportPanel() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input
                     type="text"
-                    placeholder="ID sprzętu"
-                    value={equipmentId}
+                    placeholder="Nazwa użtkownika"
+                    value={userName}
                     required
-                    onChange={(e) => setEquipmentId(e.target.value)}
+                    onChange={(e) => setUserName(e.target.value)}
+                    className="p-3 border border-gray-300 rounded"
+                />
+                <input
+                    type="text"
+                    placeholder="Nazwa sprzętu"
+                    value={equipmentName}
+                    required
+                    onChange={(e) => setEquipmentName(e.target.value)}
                     className="p-3 border border-gray-300 rounded"
                 />
                 <textarea
@@ -55,7 +87,11 @@ function FaultReportPanel() {
                     Zgłoś usterkę
                 </button>
             </form>
-            {error && <p className="text-red-600 mt-4">{error}</p>}
+
+            {error && (
+                <pre className="text-red-600 mt-4 whitespace-pre-wrap">{error}</pre>
+            )}
+
             {success && <p className="text-green-600 mt-4">{success}</p>}
         </div>
     );

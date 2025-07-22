@@ -12,6 +12,8 @@ public interface IReservationService
     ReservationDto GetReservationById(int id);
     int CreateReservation(CreateReservationDto dto, string userName);
     void CancelReservation(int id);
+    void CloseExpiredReservations();
+
 }
 
 public class ReservationService : IReservationService
@@ -116,4 +118,25 @@ public class ReservationService : IReservationService
         _dbContext.SaveChanges();
         
     }
+
+    public void CloseExpiredReservations()
+    {
+        var now = DateTime.UtcNow;
+        var expiredReservations = _dbContext.Reservations
+            .Include(r=> r.Equipment)
+            .Where(r => r.EndDate < now && !r.IsCanceled)
+            .ToList();
+        foreach (var reservation in expiredReservations)
+        {
+            reservation.IsCanceled = true;
+
+            if (reservation.Equipment != null)
+            {
+                reservation.Equipment.Status = EquipmentStatus.Dostępny;
+            }
+        }
+
+        _dbContext.SaveChanges();
+    }
+    
 }
