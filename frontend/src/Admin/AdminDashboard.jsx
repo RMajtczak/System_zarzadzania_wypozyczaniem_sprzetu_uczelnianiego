@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Equipment from './Equipment';
+import Equipment from './Equipment/Equipment';
 import Faults from './Faults.jsx';
 import Reports from './Reports.jsx';
 import Settings from './Settings.jsx';
@@ -104,7 +104,6 @@ function AdminDashboard() {
 
             <main className="max-w-6xl mx-auto py-8 px-4">
                 <h1 className="text-center text-2xl font-semibold mb-6">
-                    {activeTab === 'equipment' && 'Equipment'}
                     {activeTab === 'users' && 'Users'}
                     {activeTab === 'faults' && 'Faults'}
                     {activeTab === 'reports' && 'Reports'}

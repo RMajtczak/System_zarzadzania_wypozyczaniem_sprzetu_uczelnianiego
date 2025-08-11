@@ -61,8 +61,10 @@ public class EquipmentService : IEquipmentService
             throw new NotFoundException("Nie znaleziono sprzętu.");
         equipment.Name = dto.Name;
         equipment.Type = dto.Type;
+        equipment.SerialNumber = dto.SerialNumber;
         equipment.Specification = dto.Specification;
         equipment.Location = dto.Location;
+        equipment.Status = dto.Status;
         _dbContext.SaveChanges();
         
     }
