@@ -8,7 +8,7 @@ using Wypożyczlania_sprzętu.Services;
 namespace Wypożyczlania_sprzętu.Controllers;
 [Route ("api/reservations")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class ReservationController: ControllerBase
 {
     private readonly IReservationService _reservationService;

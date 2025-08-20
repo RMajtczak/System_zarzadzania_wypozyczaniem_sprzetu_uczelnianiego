@@ -24,7 +24,6 @@ function EquipmentForm({ initialData, onSave, onCancel }) {
             setSerialNumber(initialData.serialNumber || "");
             setSpecification(initialData.specification || "");
             setLocation(initialData.location || "");
-            // mapuj status string na enum index (jeśli status przychodzi jako string)
             const statusIndex = statusOptions.findIndex(
                 (opt) => opt.label === initialData.status
             );

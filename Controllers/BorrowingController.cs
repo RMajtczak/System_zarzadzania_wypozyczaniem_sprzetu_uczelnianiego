@@ -4,7 +4,7 @@ using Wypożyczlania_sprzętu.Models;
 using Wypożyczlania_sprzętu.Services;
 
 namespace Wypożyczlania_sprzętu.Controllers;
-[Route("api/borrowing")]
+[Route("api/borrowings")]
 [ApiController]
 //[Authorize(Roles = "Admin,Manager")]
 public class BorrowingController : ControllerBase

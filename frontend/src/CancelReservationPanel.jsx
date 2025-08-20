@@ -40,12 +40,12 @@ const CancelReservationPanel = () => {
 
     return (
         <div className="max-w-3xl mx-auto p-4">
-            <h2 className="text-2xl font-bold mb-4">Twoje rezerwacje</h2>
+            <h2 className="text-2xl  font-bold mb-3 text-center ">Twoje rezerwacje</h2>
 
-            {message && <p className="text-red-500 mb-4">{message}</p>}
+            {message && <p className="text-red-500 mb-4 text-center">{message}</p>}
 
             {reservations.length === 0 ? (
-                <p>Brak aktywnych rezerwacji.</p>
+                <p className="text-center">Brak aktywnych rezerwacji.</p>
             ) : (
                 <ul className="space-y-4">
                     {reservations.map((res) => (

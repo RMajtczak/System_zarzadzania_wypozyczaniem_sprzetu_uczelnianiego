@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Equipment from './Equipment/Equipment';
 import Faults from './Faults.jsx';
 import Reports from './Reports.jsx';
-import Settings from './Settings.jsx';
-import Users from './Users';
+import Users from './User/Users';
 import { FaUserCircle } from 'react-icons/fa';
 
 
@@ -33,8 +32,6 @@ function AdminDashboard() {
                 return <Faults/>;
             case 'reports':
                 return <Reports/>;
-            case 'settings':
-                return <Settings/>;
             case 'users':
                 return <Users/>;
             default:
@@ -70,13 +67,6 @@ function AdminDashboard() {
                     >
                         Raporty
                     </button>
-                    <button
-                        className={`hover:underline ${activeTab === 'settings' ? 'font-bold' : ''} cursor-pointer`}
-                        onClick={() => setActiveTab('settings')}
-                    >
-                        Ustawienia
-                    </button>
-
                 </div>
 
                 <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
@@ -103,12 +93,7 @@ function AdminDashboard() {
             </header>
 
             <main className="max-w-6xl mx-auto py-8 px-4">
-                <h1 className="text-center text-2xl font-semibold mb-6">
-                    {activeTab === 'users' && 'Users'}
-                    {activeTab === 'faults' && 'Faults'}
-                    {activeTab === 'reports' && 'Reports'}
-                    {activeTab === 'settings' && 'Settings'}
-                </h1>
+                
                 {renderContent()}
             </main>
         </div>

@@ -73,6 +73,7 @@ try
     builder.Services.AddScoped<EquipmentSeeder>();
     builder.Services.AddScoped<IEquipmentService, EquipmentService>();
     builder.Services.AddScoped<IBorrowingService, BorrowingService>();
+    builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IReservationService, ReservationService>();
     builder.Services.AddHostedService<ReservationBackgroundService>();
     builder.Services.AddScoped<IFaultReportService, FaultReportService>();

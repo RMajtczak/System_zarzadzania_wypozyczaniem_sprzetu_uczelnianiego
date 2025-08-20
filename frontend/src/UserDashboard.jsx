@@ -83,9 +83,6 @@ function UserDashboard() {
             </header>
 
             <main className="max-w-6xl mx-auto py-8 px-4">
-                <h1 className="text-center text-2xl font-semibold mb-6">
-                    {activeTab === 'reservations' ? 'Panel Rezerwacji' : 'Panel Zgłoszeń Usterek'}
-                </h1>
                 {renderContent()}
             </main>
         </div>

@@ -29,7 +29,12 @@ public class MappingProfile: Profile
         CreateMap<AddFaultReportDto, FaultReport>();
 
         CreateMap<RegisterUserDto, User>();
-
+        
+        CreateMap<User, UserDto>()
+            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleId))
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name));
+        CreateMap<RoleUpdateDto, Role>();
+        CreateMap<Role, RoleUpdateDto>(); 
     }
     
 }
