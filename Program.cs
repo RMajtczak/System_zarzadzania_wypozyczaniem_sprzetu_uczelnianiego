@@ -13,6 +13,7 @@ using Wypożyczlania_sprzętu.Middleware;
 using Wypożyczlania_sprzętu.Models;
 using Wypożyczlania_sprzętu.Models.validators;
 using Wypożyczlania_sprzętu.Services;
+using Prometheus;
 
 var logger = LogManager.Setup()
     .LoadConfigurationFromAppSettings() 
@@ -70,7 +71,9 @@ try
 
     builder.Services.AddDbContext<RentalDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
     builder.Services.AddScoped<EquipmentSeeder>();
+    builder.Services.AddScoped<IReportService, ReportService>();
     builder.Services.AddScoped<IEquipmentService, EquipmentService>();
     builder.Services.AddScoped<IBorrowingService, BorrowingService>();
     builder.Services.AddScoped<IUserService, UserService>();
@@ -83,6 +86,9 @@ try
     builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
     builder.Services.AddSwaggerGen();
     builder.Services.AddAutoMapper(typeof(Program));
+
+    // Dodaj Prometheus
+    builder.Services.AddSingleton<CollectorRegistry>(); // rejestr dla metryk
 
     var app = builder.Build();
 
@@ -97,6 +103,7 @@ try
         app.UseExceptionHandler("/Home/Error");
         app.UseHsts();
     }
+
     app.UseRouting();
     app.UseCors("AllowFrontend");
     app.UseAuthentication();
@@ -108,11 +115,28 @@ try
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Wypożyczalnia Sprzętu API ");
     });
-    
-    //app.MapControllerRoute(
-            //name: "default",
-            //pattern: "{controller=Home}/{action=Index}/{id?}")
-        //.WithStaticAssets();
+
+    // Prometheus middleware
+    app.UseHttpMetrics(); // automatyczne liczenie requestów i czasów
+    app.MapMetrics("/metrics"); // endpoint /metrics dla Prometheus
+
+    // Health Check endpoint
+    app.MapGet("/health", async (RentalDbContext db) =>
+    {
+        try
+        {
+            bool dbOk = await db.Database.CanConnectAsync();
+            if (dbOk)
+                return Results.Ok(new { status = "Healthy", db = dbOk });
+            else
+                return Results.Json(new { status = "Unhealthy", db = dbOk }, statusCode: 503);
+        }
+        catch
+        {
+            return Results.Json(new { status = "Unhealthy", db = false }, statusCode: 503);
+        }
+    });
+
     app.MapControllers();
     app.Run();
 }

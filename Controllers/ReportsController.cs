@@ -1,56 +1,36 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Wypożyczlania_sprzętu.Services;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Wypożyczlania_sprzętu.Models;
 
-namespace Wypożyczlania_sprzętu.Controllers
+[ApiController]
+[Route("api/reports")]
+[Authorize(Roles = "Admin")]
+public class ReportsController : ControllerBase
 {
-    [Route("api/reports")]
-    [ApiController]
-    public class ReportsController : ControllerBase
+    private readonly IReportService _reportService;
+
+    public ReportsController(IReportService reportService)
     {
-        private readonly IBorrowingService _borrowingService;
+        _reportService = reportService;
+    }
 
-        public ReportsController(IBorrowingService borrowingService)
-        {
-            _borrowingService = borrowingService;
-        }
-        
-        [HttpGet("borrowings")]
-        public ActionResult<IEnumerable<object>> GetBorrowingReport()
-        {
-            var borrowings = _borrowingService.GetAllBorrowings();
+    [HttpGet("equipment-stats")]
+    public ActionResult<EquipmentReportDto> GetEquipmentStats()
+    {
+        return Ok(_reportService.GetEquipmentReport());
+    }
 
-            var report = borrowings.Select(b => new
-            {
-                EquipmentName = b.EquipmentName,
-                BorrowerName = b.BorrowerName,
-                StartDate = b.StartDate,
-                EndDate = b.EndDate,
-                Condition = b.Condition,
-                IsReturned = b.IsReturned
-            }).ToList();
+    [HttpGet("equipment-report/csv")]
+    public IActionResult GetReportCsv()
+    {
+        var file = _reportService.ExportReportToCsv();
+        return File(file, "text/csv", "raport_sprzetu.csv");
+    }
 
-            return Ok(report);
-        }
-
-        // GET: api/reports/stats/equipment
-        [HttpGet("stats/equipment")]
-        public ActionResult<IEnumerable<object>> GetEquipmentStats()
-        {
-            var borrowings = _borrowingService.GetAllBorrowings();
-
-            var stats = borrowings
-                .GroupBy(b => b.EquipmentName)
-                .Select(g => new
-                {
-                    EquipmentName = g.Key,
-                    Count = g.Count()
-                })
-                .OrderByDescending(x => x.Count)
-                .ToList();
-
-            return Ok(stats);
-        }
+    [HttpGet("equipment-report/pdf")]
+    public IActionResult GetReportPdf()
+    {
+        var file = _reportService.ExportReportToPdf();
+        return File(file, "application/pdf", "raport_sprzetu.pdf");
     }
 }

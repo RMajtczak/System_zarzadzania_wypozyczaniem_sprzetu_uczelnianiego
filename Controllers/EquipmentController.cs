@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wypożyczlania_sprzętu.Models;
 using Wypożyczlania_sprzętu.Services;
 
 namespace Wypożyczlania_sprzętu.Controllers;
 [Route("api/equipment")]
 [ApiController]
+[Authorize(Roles = "Admin,Manager,User")]
 public class EquipmentController : ControllerBase
 {
     private readonly IEquipmentService _equipmentService;

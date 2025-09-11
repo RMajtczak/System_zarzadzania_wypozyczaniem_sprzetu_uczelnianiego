@@ -86,6 +86,7 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
       <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+      <PackageReference Include="itext7" Version="9.3.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-preview.4.25258.110" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.4.25258.110" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0-preview.4.25258.110" />
@@ -96,6 +97,7 @@
       <PackageReference Include="NLog" Version="5.4.0" />
       <PackageReference Include="NLog.Config" Version="4.7.15" />
       <PackageReference Include="NLog.Web.AspNetCore" Version="5.4.0" />
+      <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
     </ItemGroup>
 

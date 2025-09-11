@@ -13,6 +13,7 @@ public interface IBorrowingService
     int AddBorrow(AddBorrowDto dto);
     void DeleteBorrowing(int id);
     void Return(int id);
+    IEnumerable<BorrowingDto> GetActiveBorrowings();
 
 }
 public class BorrowingService : IBorrowingService
@@ -100,5 +101,15 @@ public class BorrowingService : IBorrowingService
         borrowing.EndDate = DateTime.Now;
         borrowing.Equipment.Status = EquipmentStatus.Dostępny;
         _dbContext.SaveChanges();
+    }
+    public IEnumerable<BorrowingDto> GetActiveBorrowings()
+    {
+        var activeBorrowings = _dbContext.Borrowings
+            .Include(b => b.Equipment)
+            .Include(b => b.User)
+            .Where(b => !b.IsReturned) // tylko aktywne
+            .ToList();
+
+        return _mapper.Map<List<BorrowingDto>>(activeBorrowings);
     }
 }

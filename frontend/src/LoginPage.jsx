@@ -42,7 +42,10 @@ function LoginPage() {
                 window.location.href = "/user-dashboard";
             } else if (role === "Admin") {
                 window.location.href = "/admin-dashboard";
-            } else {
+            } else if (role === "Manager") {
+                window.location.href = "/manager-dashboard";
+            }
+            else {
                 setError("Nieznana rola użytkownika.");
             }
 

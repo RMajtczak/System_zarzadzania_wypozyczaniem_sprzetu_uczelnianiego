@@ -7,7 +7,7 @@ namespace Wypożyczlania_sprzętu.Controllers;
 
 [ApiController]
 [Route("api/users")]
-
+[Authorize(Roles = "Admin")]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;

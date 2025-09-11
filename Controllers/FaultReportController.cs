@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wypożyczlania_sprzętu.Models;
 using Wypożyczlania_sprzętu.Services;
 
@@ -6,6 +7,7 @@ namespace Wypożyczlania_sprzętu.Controllers;
 
 [Route("api/faultreports")]
 [ApiController]
+[Authorize(Roles = "Admin,Manager,User")]
 public class FaultReportController : ControllerBase
 {
     private readonly IFaultReportService _faultReportService;

@@ -3,6 +3,7 @@ import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
 import UserDashboard from "./UserDashboard.jsx";
 import AdminDashboard from "./Admin/AdminDashboard.jsx";
+import ManagerDashboard from "./Manager/ManagerDashboard.jsx";
 
 function App() {
     return (
@@ -12,6 +13,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/user-dashboard" element={<UserDashboard />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/manager-dashboard" element={<ManagerDashboard />} />
                 <Route path="*" element={<LoginPage />} /> {/* domyślnie login */}
             </Routes>
         </Router>

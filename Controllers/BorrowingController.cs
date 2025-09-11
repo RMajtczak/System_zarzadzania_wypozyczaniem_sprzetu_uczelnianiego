@@ -6,7 +6,7 @@ using Wypożyczlania_sprzętu.Services;
 namespace Wypożyczlania_sprzętu.Controllers;
 [Route("api/borrowings")]
 [ApiController]
-//[Authorize(Roles = "Admin,Manager")]
+[Authorize(Roles = "Admin,Manager")]
 public class BorrowingController : ControllerBase
 {
     private readonly IBorrowingService _borrowingService;
@@ -50,7 +50,12 @@ public class BorrowingController : ControllerBase
         _borrowingService.Return(id);
         return Ok("Zwrócono sprzęt");
     }
-    
+    [HttpGet("active")]
+    public ActionResult<IEnumerable<BorrowingDto>> GetActiveBorrowings()
+    {
+        var activeBorrowings = _borrowingService.GetActiveBorrowings();
+        return Ok(activeBorrowings);
+    }
         
 }
 
