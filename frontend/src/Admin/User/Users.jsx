@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api";
 
 export default function UserList() {
     const [users, setUsers] = useState([]); // tablica użytkowników
@@ -16,7 +16,7 @@ export default function UserList() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await axios.get("https://localhost:5001/api/users"); // pełny URL
+                const res = await api.get("https://localhost:5001/api/users"); // pełny URL
                 if (Array.isArray(res.data)) {
                     setUsers(res.data);
                 } else {
@@ -37,7 +37,7 @@ export default function UserList() {
     // Zmiana roli użytkownika
     const handleRoleChange = async (userId, newRoleId) => {
         try {
-            await axios.put(`https://localhost:5001/api/users/update-role/${userId}`, {
+            await api.put(`https://localhost:5001/api/users/update-role/${userId}`, {
                 roleId: parseInt(newRoleId),
             });
 

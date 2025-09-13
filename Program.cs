@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,24 +30,26 @@ try
     builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     builder.Host.UseNLog();
 
-    var authenticationSettings = new AutenticationSettings();
-    builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
-    builder.Services.AddSingleton(authenticationSettings);
+    //var authenticationSettings = new AutenticationSettings();
+    //builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
+    //builder.Services.AddSingleton(authenticationSettings);
 
     builder.Services.AddAuthentication(option =>
     {
-        option.DefaultAuthenticateScheme = "Bearer";
-        option.DefaultScheme = "Bearer";
-        option.DefaultChallengeScheme = "Bearer";
-    }).AddJwtBearer(cfg =>
+        option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(options =>
     {
-        cfg.RequireHttpsMetadata = false;
-        cfg.SaveToken = true;
-        cfg.TokenValidationParameters = new TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidIssuer = authenticationSettings.JwtIssuer,
-            ValidAudience = authenticationSettings.JwtIssuer,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+            ValidateIssuer = true,       // Kto wydał token (np. "your-api")
+            ValidateAudience = true,     // Dla kogo jest token (np. "your-client")
+            ValidateLifetime = true,     // Czy sprawdzać czas życia tokenu
+            ValidateIssuerSigningKey = true, // Czy walidować klucz
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
     });
 

@@ -17,7 +17,7 @@ public class ReservationController: ControllerBase
     {
         _reservationService = reservationService;
     }
-    
+
     [HttpGet]
     public ActionResult<IEnumerable<ReservationDto>> GetOwn()
     {
@@ -32,7 +32,7 @@ public class ReservationController: ControllerBase
         var reservation = _reservationService.GetReservationById(id);
         return Ok(reservation);
     }
-    
+
     [HttpPost]
     public ActionResult Create([FromBody] CreateReservationDto dto)
     {
@@ -45,11 +45,24 @@ public class ReservationController: ControllerBase
         var id = _reservationService.CreateReservation(dto, userName);
         return Created($"/api/reservations/{id}", null);
     }
-    
+
     [HttpPost("{id}/cancel")]
     public ActionResult CancelReservation([FromRoute] int id)
     {
         _reservationService.CancelReservation(id);
         return Ok("Rezerwacja została anulowana.");
     }
+    [HttpGet("active")] // zamiast "/active"
+    public ActionResult<IEnumerable<ReservationDto>> GetActiveReservations()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Brak userId w tokenie.");
+        }
+
+        var reservations = _reservationService.GetActiveReservations(userId);
+        return Ok(reservations);
+    }
+
 }

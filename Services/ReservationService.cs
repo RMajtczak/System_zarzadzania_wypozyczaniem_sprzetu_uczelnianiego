@@ -13,6 +13,7 @@ public interface IReservationService
     int CreateReservation(CreateReservationDto dto, string userName);
     void CancelReservation(int id);
     void CloseExpiredReservations();
+    IEnumerable<ReservationDto> GetActiveReservations(string userId);
 
 }
 
@@ -38,14 +39,15 @@ public class ReservationService : IReservationService
         var result = _mapper.Map<List<ReservationDto>>(reservations);
         return result;
     }
-    public IEnumerable<ReservationDto> GetAllReservations()
+    public IEnumerable<ReservationDto> GetActiveReservations(string userId)
     {
         var reservations = _dbContext.Reservations
             .Include(r => r.Equipment)
             .Include(r => r.User)
+            .Where(r => r.User.Id == int.Parse(userId) && !r.IsCanceled)
             .ToList();
-        var reservationsDto = _mapper.Map<List<ReservationDto>>(reservations);
-        return reservationsDto;
+
+        return _mapper.Map<List<ReservationDto>>(reservations);
     }
 
     public ReservationDto GetReservationById(int id)

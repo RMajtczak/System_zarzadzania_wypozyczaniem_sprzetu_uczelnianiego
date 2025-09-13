@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import axios from './api.js';
+import api from '../api.js';
 
 function FaultReportPanel() {
     const [equipmentName, setEquipmentName] = useState('');
@@ -16,7 +16,7 @@ function FaultReportPanel() {
         
 
         try {
-            await axios.post('https://localhost:5001/api/faultreports', {
+            await api.post('https://localhost:5001/api/faultreports', {
                 equipmentName,
                 userName,
                 description,

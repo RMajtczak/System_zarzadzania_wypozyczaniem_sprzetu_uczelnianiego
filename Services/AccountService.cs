@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +20,14 @@ public class AccountService : IAccountService
     private readonly RentalDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly IPasswordHasher<User> _passwordHasher;
-    private readonly AutenticationSettings _authenticationSettings;
+    private readonly IConfiguration _configuration;
 
-    public AccountService(RentalDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AutenticationSettings authenticationSettings)
+    public AccountService(RentalDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, IConfiguration configuration)
     {
         _dbContext = dbContext;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
-        _authenticationSettings = authenticationSettings;
+        _configuration = configuration;
     }
 
     public void RegisterUser(RegisterUserDto dto)
@@ -38,6 +39,7 @@ public class AccountService : IAccountService
         _dbContext.SaveChanges();
     }
 
+    
     public TokenResponseDto GenerateToken(LoginDto dto)
     {
         var user = _dbContext.Users
@@ -61,13 +63,14 @@ public class AccountService : IAccountService
             new Claim(ClaimTypes.Role, user.Role.Name)
         };
 
-        var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_authenticationSettings.JwtKey));
+        // Użyj _configuration do odczytu wartości z sekcji "Jwt"
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expirationDate = DateTime.UtcNow.AddDays(_authenticationSettings.JwtExpireDays);
+        var expirationDate = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:ExpireDays"]));
 
         var token = new JwtSecurityToken(
-            _authenticationSettings.JwtIssuer,
-            _authenticationSettings.JwtIssuer,
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
             claims,
             expires: expirationDate,
             signingCredentials: cred

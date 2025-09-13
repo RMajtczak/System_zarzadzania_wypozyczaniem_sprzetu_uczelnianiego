@@ -4,6 +4,8 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     </PropertyGroup>
 
     <ItemGroup>
@@ -81,24 +83,32 @@
       <_ContentIncludedByDefault Remove="frontend\package-lock.json" />
       <_ContentIncludedByDefault Remove="frontend\package.json" />
       <_ContentIncludedByDefault Remove="frontend\public\manifest.json" />
+      <_ContentIncludedByDefault Remove="Testy\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="Testy\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="Testy\obj\Testy.csproj.nuget.dgspec.json" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+      <PackageReference Include="FluentAssertions" Version="8.6.0" />
       <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
       <PackageReference Include="itext7" Version="9.3.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-preview.4.25258.110" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.4.25258.110" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0-preview.4.25258.110" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0-preview.4.25258.110">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+      <PackageReference Include="Moq" Version="4.20.72" />
       <PackageReference Include="NLog" Version="5.4.0" />
       <PackageReference Include="NLog.Config" Version="4.7.15" />
       <PackageReference Include="NLog.Web.AspNetCore" Version="5.4.0" />
       <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
+      <PackageReference Include="xunit.extensibility.core" Version="2.9.2" />
     </ItemGroup>
 
 </Project>

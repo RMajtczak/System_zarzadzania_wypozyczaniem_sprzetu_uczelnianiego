@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api";
 import EquipmentList from "./EquipmentList";
 import EquipmentForm from "./EquipmentForm";
 
@@ -18,7 +18,7 @@ function Equipment() {
             ? `https://localhost:5001/api/equipment/search?name=${encodeURIComponent(query)}`
             : `https://localhost:5001/api/equipment`;
 
-        axios
+        api
             .get(url)
             .then((res) => {
                 setEquipments(res.data);
@@ -47,7 +47,7 @@ function Equipment() {
 
     const handleDelete = (id) => {
         if (window.confirm("Czy na pewno chcesz usunąć ten sprzęt?")) {
-            axios
+            api
                 .delete(`https://localhost:5001/api/equipment/${id}`)
                 .then(() => fetchEquipments())
                 .catch((err) => console.error(err));
@@ -56,7 +56,7 @@ function Equipment() {
 
     const handleSave = (data, isEdit) => {
         if (isEdit) {
-            axios
+            api
                 .put(`https://localhost:5001/api/equipment/${editData.id}`, data)
                 .then(() => {
                     fetchEquipments();
@@ -64,7 +64,7 @@ function Equipment() {
                 })
                 .catch((err) => console.error(err));
         } else {
-            axios
+            api
                 .post(`https://localhost:5001/api/equipment`, data)
                 .then(() => {
                     fetchEquipments();

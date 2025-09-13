@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api"; 
 import EquipmentList from "./EquipmentList";
 import EquipmentForm from "./EquipmentForm";
 
@@ -13,13 +13,11 @@ function Equipment() {
         fetchEquipments();
     }, []);
 
+    // Użycie 'api' i ścieżek względnych
     const fetchEquipments = (query = "") => {
-        const url = query
-            ? `https://localhost:5001/api/equipment/search?name=${encodeURIComponent(query)}`
-            : `https://localhost:5001/api/equipment`;
+        const url = query ? `/equipment/search?name=${encodeURIComponent(query)}` : `/equipment`;
 
-        axios
-            .get(url)
+        api.get(url)
             .then((res) => {
                 setEquipments(res.data);
             })
@@ -45,27 +43,26 @@ function Equipment() {
         setView("edit");
     };
 
+    // Użycie 'api' i ścieżek względnych
     const handleDelete = (id) => {
         if (window.confirm("Czy na pewno chcesz usunąć ten sprzęt?")) {
-            axios
-                .delete(`https://localhost:5001/api/equipment/${id}`)
+            api.delete(`/equipment/${id}`)
                 .then(() => fetchEquipments())
                 .catch((err) => console.error(err));
         }
     };
 
+    // Użycie 'api' i ścieżek względnych
     const handleSave = (data, isEdit) => {
         if (isEdit) {
-            axios
-                .put(`https://localhost:5001/api/equipment/${editData.id}`, data)
+            api.put(`/equipment/${editData.id}`, data)
                 .then(() => {
                     fetchEquipments();
                     setView("list");
                 })
                 .catch((err) => console.error(err));
         } else {
-            axios
-                .post(`https://localhost:5001/api/equipment`, data)
+            api.post(`/equipment`, data)
                 .then(() => {
                     fetchEquipments();
                     setView("list");

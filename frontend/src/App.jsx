@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
-import UserDashboard from "./UserDashboard.jsx";
+import UserDashboard from "./User/UserDashboard.jsx";
 import AdminDashboard from "./Admin/AdminDashboard.jsx";
 import ManagerDashboard from "./Manager/ManagerDashboard.jsx";
 

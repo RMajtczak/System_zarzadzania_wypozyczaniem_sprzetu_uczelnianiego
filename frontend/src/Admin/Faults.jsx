@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 export default function FaultReports() {
     const [faults, setFaults] = useState([]);
@@ -11,7 +11,7 @@ export default function FaultReports() {
 
     const fetchFaults = async () => {
         try {
-            const res = await axios.get("https://localhost:5001/api/faultreports");
+            const res = await api.get("https://localhost:5001/api/faultreports");
             if (Array.isArray(res.data)) {
                 setFaults(res.data);
             } else {
@@ -28,7 +28,7 @@ export default function FaultReports() {
 
     const handleResolve = async (id) => {
         try {
-            await axios.patch(`https://localhost:5001/api/faultreports/${id}/resolve`);
+            await api.patch(`https://localhost:5001/api/faultreports/${id}/resolve`);
             setFaults(prev =>
                 prev.map(f => (f.id === id ? { ...f, isResolved: true } : f))
             );
