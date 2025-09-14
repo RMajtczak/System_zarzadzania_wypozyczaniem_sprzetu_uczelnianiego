@@ -6,7 +6,7 @@ function BorrowingHistory() {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        fetch('https://localhost:5001/api/borrowings', { // dostosuj URL do backendu
+        fetch('http://localhost:5000/api/borrowings', { 
             headers: {
                 'Authorization': `Bearer ${token}`
             }

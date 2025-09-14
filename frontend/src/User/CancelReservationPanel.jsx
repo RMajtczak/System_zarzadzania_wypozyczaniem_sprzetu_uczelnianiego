@@ -8,7 +8,7 @@ const CancelReservationPanel = () => {
     const token = localStorage.getItem("token");
 
     const fetchReservations = () => {
-        api.get("https://localhost:5001/api/reservations/active", {
+        api.get("http://localhost:5000/api/reservations/active", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -37,14 +37,13 @@ const CancelReservationPanel = () => {
         const now = new Date().getTime();
 
         api
-            .post(`https://localhost:5001/api/reservations/${id}/cancel`, null, {
+            .post(`http://localhost:5000/api/reservations/${id}/cancel`, null, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             })
             .then(() => {
                 setMessage("Rezerwacja anulowana.");
-                // Filtrujemy aktywne rezerwacje po anulowaniu
                 setReservations((prev) =>
                     prev.filter((r) => r.id !== id && new Date(r.endDate).getTime() >= now)
                 );

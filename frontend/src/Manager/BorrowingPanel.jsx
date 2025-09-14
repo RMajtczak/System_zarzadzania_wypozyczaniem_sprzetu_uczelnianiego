@@ -19,10 +19,9 @@ function BorrowingPanel() {
 
     const fetchEquipment = async () => {
         try {
-            const res = await api.get('https://localhost:5001/api/equipment', {
+            const res = await api.get('http://localhost:5000/api/equipment', {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            // upewniamy się, że zawsze mamy tablicę
             const data = Array.isArray(res.data) ? res.data : res.data?.equipment || [];
             setEquipment(data);
         } catch (err) {
@@ -32,7 +31,7 @@ function BorrowingPanel() {
 
     const fetchUsers = async () => {
         try {
-            const res = await api.get('https://localhost:5001/api/users', {
+            const res = await api.get('http://localhost:5000/api/users', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = Array.isArray(res.data) ? res.data : res.data?.users || [];
@@ -44,7 +43,7 @@ function BorrowingPanel() {
 
     const fetchBorrowings = async () => {
         try {
-            const res = await api.get('https://localhost:5001/api/borrowings/active', {
+            const res = await api.get('http://localhost:5000/api/borrowings/active', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const data = Array.isArray(res.data) ? res.data : [];
@@ -62,7 +61,7 @@ function BorrowingPanel() {
         setLoading(true);
         try {
             await api.post(
-                'https://localhost:5001/api/borrowings',
+                'http://localhost:5000/api/borrowings',
                 {
                     equipmentName: selectedEquipment,
                     borrowerName: selectedUser,
@@ -86,7 +85,7 @@ function BorrowingPanel() {
     const handleReturn = async (id) => {
         if (!window.confirm('Czy na pewno chcesz zwrócić ten sprzęt?')) return;
         try {
-            await api.patch(`https://localhost:5001/api/borrowings/${id}`, null, {
+            await api.patch(`http://localhost:5000/api/borrowings/${id}`, null, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             alert('Sprzęt został zwrócony.');

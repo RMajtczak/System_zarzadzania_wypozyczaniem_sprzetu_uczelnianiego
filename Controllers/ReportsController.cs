@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Wypożyczlania_sprzętu.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/reports")]
-[Authorize(Roles = "Admin")]
 public class ReportsController : ControllerBase
 {
     private readonly IReportService _reportService;
@@ -14,23 +11,55 @@ public class ReportsController : ControllerBase
         _reportService = reportService;
     }
 
-    [HttpGet("equipment-stats")]
-    public ActionResult<EquipmentReportDto> GetEquipmentStats()
+
+    [HttpGet("borrowings/csv")]
+    public IActionResult BorrowingsCsv(DateTime? startDate, DateTime? endDate)
     {
-        return Ok(_reportService.GetEquipmentReport());
+        var file = _reportService.GenerateBorrowingsCsv(startDate, endDate);
+        return File(file, "text/csv", "BorrowingsReport.csv");
     }
 
-    [HttpGet("equipment-report/csv")]
-    public IActionResult GetReportCsv()
+
+    [HttpGet("borrowings/pdf")]
+    public IActionResult BorrowingsPdf(DateTime? startDate, DateTime? endDate)
     {
-        var file = _reportService.ExportReportToCsv();
-        return File(file, "text/csv", "raport_sprzetu.csv");
+        try
+    {
+        var pdfData = _reportService.GenerateBorrowingsPdf(startDate, endDate);
+        return File(pdfData, "application/pdf", "BorrowingsReport.pdf");
+    }
+    catch (Exception ex)
+    {
+        // Tylko do testów – pokaże prawdziwy błąd w JSON
+        return BadRequest(new { error = ex.Message, stack = ex.StackTrace });
+    }
     }
 
-    [HttpGet("equipment-report/pdf")]
-    public IActionResult GetReportPdf()
+
+    [HttpGet("top-equipment/csv")]
+    public IActionResult TopEquipmentCsv(int topN = 5)
     {
-        var file = _reportService.ExportReportToPdf();
-        return File(file, "application/pdf", "raport_sprzetu.pdf");
+        var file = _reportService.GenerateTopEquipmentCsv(topN);
+        return File(file, "text/csv", $"Top{topN}Equipment.csv");
+    }
+    
+    [HttpGet("top-equipment/pdf")]
+    public IActionResult TopEquipmentPdf(int topN = 5)
+    {
+        var file = _reportService.GenerateTopEquipmentPdf(topN);
+        return File(file, "application/pdf", $"Top{topN}Equipment.pdf");
+    }
+    
+    [HttpGet("borrowings")]
+    public IActionResult BorrowingsData(DateTime? startDate, DateTime? endDate)
+    {
+        var data = _reportService.GetBorrowings(startDate, endDate); 
+        return Ok(data);
+    }
+    [HttpGet("top-equipment")]
+    public IActionResult TopEquipmentData(int topN = 5)
+    {
+        var data = _reportService.GetTopEquipment(topN); // metoda publiczna w serwisie
+        return Ok(data);
     }
 }

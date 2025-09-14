@@ -1,95 +1,211 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
 using System.Text;
-using System.IO;
-using iText.Kernel.Pdf;
-using iText.Layout;
-using iText.Layout.Element;
 using Wypożyczlania_sprzętu.Entities;
 using Wypożyczlania_sprzętu.Models;
 
 public interface IReportService
 {
-    EquipmentReportDto GetEquipmentReport();
-    byte[] ExportReportToCsv();
-    byte[] ExportReportToPdf();
+    byte[] GenerateBorrowingsCsv(DateTime? start, DateTime? end);
+    byte[] GenerateBorrowingsPdf(DateTime? start, DateTime? end);
+    byte[] GenerateTopEquipmentCsv(int topN);
+    byte[] GenerateTopEquipmentPdf(int topN);
+    List<BorrowingReportDto> GetBorrowings(DateTime? start, DateTime? end);
+    List<TopEquipmentDto> GetTopEquipment(int topN);
 }
 
 public class ReportService : IReportService
 {
-    private readonly RentalDbContext _dbContext;
+    private readonly RentalDbContext _context;
 
-    public ReportService(RentalDbContext dbContext)
+    public ReportService(RentalDbContext context)
     {
-        _dbContext = dbContext;
+        _context = context;
     }
 
-    // Statystyki sprzętu
-    public EquipmentReportDto GetEquipmentReport()
+    // =====================
+    // Borrowings → CSV
+    // =====================
+    public byte[] GenerateBorrowingsCsv(DateTime? start, DateTime? end)
     {
-        var equipments = _dbContext.Equipment.ToList();
+        var data = GetBorrowings(start, end);
 
-        return new EquipmentReportDto
+        var csv = new StringBuilder();
+        csv.AppendLine("User;Equipment;StartDate;EndDate;Status");
+
+        foreach (var b in data)
         {
-            Total = equipments.Count,
-            Dostępny = equipments.Count(e => e.Status == EquipmentStatus.Dostępny),
-            Zarezerwowany = equipments.Count(e => e.Status == EquipmentStatus.Zarezerwowany),
-            Wypożyczony = equipments.Count(e => e.Status == EquipmentStatus.Wypożyczony),
-            Naprawa = equipments.Count(e => e.Status == EquipmentStatus.Naprawa),
-            Uszkodzony = equipments.Count(e => e.Status == EquipmentStatus.Uszkodzony),
-        };
+            var userName = !string.IsNullOrWhiteSpace(b.User) ? b.User : "Unknown User";
+            
+            var equipmentName = !string.IsNullOrWhiteSpace(b.Equipment) ? b.Equipment : "Unknown";
+            
+            var startDate = b.StartDate.ToString("dd.MM.yyyy");
+            var endDate = b.EndDate.HasValue ? b.EndDate.Value.ToString("dd.MM.yyyy") : "-";
+            
+            var status = b.IsReturned ? "Returned" : "Active";
+
+            csv.AppendLine($"{userName};{equipmentName};{startDate};{endDate};{status}");
+        }
+
+        return Encoding.UTF8.GetBytes(csv.ToString());
     }
 
-    // Eksport CSV
-    public byte[] ExportReportToCsv()
+
+    // =====================
+    // Borrowings → PDF
+    // =====================
+    public byte[] GenerateBorrowingsPdf(DateTime? start, DateTime? end)
     {
-        var report = GetEquipmentReport();
-        var sb = new StringBuilder();
+        var data = GetBorrowings(start, end);
 
-        sb.AppendLine("Total,Dostępny,Zarezerwowany,Wypożyczony,Naprawa,Uszkodzony");
-        sb.AppendLine($"{report.Total},{report.Dostępny},{report.Zarezerwowany},{report.Wypożyczony},{report.Naprawa},{report.Uszkodzony}");
+        return Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Margin(20);
+                page.Header().Text("Raport wypożyczeń")
+                    .FontSize(20).Bold().AlignCenter();
 
-        return Encoding.UTF8.GetBytes(sb.ToString());
+                page.Content().Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn(2); // User
+                        columns.RelativeColumn(2); // Equipment
+                        columns.RelativeColumn();  // StartDate
+                        columns.RelativeColumn();  // EndDate
+                        columns.RelativeColumn();  // Status
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Text("User").Bold();
+                        header.Cell().Text("Equipment").Bold();
+                        header.Cell().Text("Start Date").Bold();
+                        header.Cell().Text("End Date").Bold();
+                        header.Cell().Text("Status").Bold();
+                    });
+
+                    foreach (var b in data)
+                    {
+                        var userName = !string.IsNullOrWhiteSpace(b.User) ? b.User : "Unknown User";
+                        var equipmentName = !string.IsNullOrWhiteSpace(b.Equipment) ? b.Equipment : "Unknown";
+                        var startDate = b.StartDate.ToString("dd.MM.yyyy");
+                        var endDate = b.EndDate.HasValue ? b.EndDate.Value.ToString("dd.MM.yyyy") : "-";
+                        var status = b.IsReturned ? "Returned" : "Active";
+
+                        table.Cell().Text(userName);
+                        table.Cell().Text(equipmentName);
+                        table.Cell().Text(startDate);
+                        table.Cell().Text(endDate);
+                        table.Cell().Text(status);
+                    }
+                });
+            });
+        }).GeneratePdf();
     }
 
-    // Eksport PDF
-    public byte[] ExportReportToPdf()
+
+    // =====================
+    // Top Equipment → CSV
+    // =====================
+    public byte[] GenerateTopEquipmentCsv(int topN)
     {
-        var report = GetEquipmentReport();
+        var data = GetTopEquipment(topN);
 
-        using var ms = new MemoryStream();
-        var writer = new PdfWriter(ms);
+        var csv = new StringBuilder();
+        csv.AppendLine("Equipment;Count");
 
-        // 1️⃣ Tworzymy plik PDF
-        var pdf = new PdfDocument(writer);
+        foreach (var item in data)
+        {
+            var equipmentName = !string.IsNullOrWhiteSpace(item.Equipment) ? item.Equipment : "Unknown";
+            var count = item.Count;
 
-        // 2️⃣ Tworzymy layout dokumentu
-        var document = new Document(pdf);
+            csv.AppendLine($"{equipmentName};{count}");
+        }
 
-        document.Add(new Paragraph("Raport sprzętu")
-            .SetFont(iText.Kernel.Font.PdfFontFactory.CreateFont(iText.IO.Font.Constants.StandardFonts.HELVETICA_BOLD))
-            .SetFontSize(16));
-        document.Add(new Paragraph($"Data wygenerowania: {DateTime.Now}"));
-        document.Add(new Paragraph("\n"));
+        return Encoding.UTF8.GetBytes(csv.ToString());
+    }
 
-        // Tworzymy tabelę
-        var table = new Table(6, false);
-        table.AddHeaderCell("Total");
-        table.AddHeaderCell("Dostępny");
-        table.AddHeaderCell("Zarezerwowany");
-        table.AddHeaderCell("Wypożyczony");
-        table.AddHeaderCell("Naprawa");
-        table.AddHeaderCell("Uszkodzony");
 
-        table.AddCell(report.Total.ToString());
-        table.AddCell(report.Dostępny.ToString());
-        table.AddCell(report.Zarezerwowany.ToString());
-        table.AddCell(report.Wypożyczony.ToString());
-        table.AddCell(report.Naprawa.ToString());
-        table.AddCell(report.Uszkodzony.ToString());
+    // =====================
+    // Top Equipment → PDF
+    // =====================
+    public byte[] GenerateTopEquipmentPdf(int topN)
+    {
+        var data = GetTopEquipment(topN);
 
-        document.Add(table);
-        document.Close();
+        return Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Margin(20);
+                page.Header().Text($"TOP {topN} najczęściej wypożyczanych sprzętów")
+                    .FontSize(20).Bold().AlignCenter();
 
-        return ms.ToArray();
+                page.Content().Table(table =>
+                {
+                    table.ColumnsDefinition(columns =>
+                    {
+                        columns.RelativeColumn();
+                        columns.ConstantColumn(100);
+                    });
+
+                    table.Header(header =>
+                    {
+                        header.Cell().Text("Equipment").Bold();
+                        header.Cell().Text("Count").Bold();
+                    });
+
+                    foreach (var item in data)
+                    {
+                        table.Cell().Text(item.Equipment);
+                        table.Cell().Text(item.Count.ToString());
+                    }
+                });
+            });
+        }).GeneratePdf();
+    }
+
+    // =====================
+    // Helpers
+    // =====================
+    public List<BorrowingReportDto> GetBorrowings(DateTime? start, DateTime? end)
+    {
+        var query = _context.Borrowings
+            .Include(b => b.User)
+            .Include(b => b.Equipment)
+            .AsQueryable();
+
+        if (start.HasValue)
+            query = query.Where(b => b.StartDate >= start);
+
+        if (end.HasValue)
+            query = query.Where(b => b.EndDate <= end);
+
+        return query.Select(b => new BorrowingReportDto
+        {
+            User = b.User.FirstName + " " + b.User.LastName,
+            Equipment = b.Equipment.Name,
+            StartDate = b.StartDate,
+            EndDate = b.EndDate,
+            IsReturned = b.IsReturned
+        }).ToList();
+    }
+
+    public List<TopEquipmentDto> GetTopEquipment(int topN)
+    {
+        return _context.Borrowings
+            .Include(b => b.Equipment)
+            .GroupBy(b => b.Equipment.Name)
+            .Select(g => new TopEquipmentDto
+            {
+                Equipment = g.Key,
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.Count)
+            .Take(topN)
+            .ToList();
     }
 }

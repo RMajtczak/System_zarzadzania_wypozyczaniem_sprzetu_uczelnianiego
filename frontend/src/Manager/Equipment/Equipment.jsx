@@ -15,8 +15,8 @@ function Equipment() {
 
     const fetchEquipments = (query = "") => {
         const url = query
-            ? `https://localhost:5001/api/equipment/search?name=${encodeURIComponent(query)}`
-            : `https://localhost:5001/api/equipment`;
+            ? `http://localhost:5000/api/equipment/search?name=${encodeURIComponent(query)}`
+            : `http://localhost:5000/api/equipment`;
 
         api
             .get(url)
@@ -48,7 +48,7 @@ function Equipment() {
     const handleDelete = (id) => {
         if (window.confirm("Czy na pewno chcesz usunąć ten sprzęt?")) {
             api
-                .delete(`https://localhost:5001/api/equipment/${id}`)
+                .delete(`http://localhost:5000/api/equipment/${id}`)
                 .then(() => fetchEquipments())
                 .catch((err) => console.error(err));
         }
@@ -57,7 +57,7 @@ function Equipment() {
     const handleSave = (data, isEdit) => {
         if (isEdit) {
             api
-                .put(`https://localhost:5001/api/equipment/${editData.id}`, data)
+                .put(`http://localhost:5000/api/equipment/${editData.id}`, data)
                 .then(() => {
                     fetchEquipments();
                     setView("list");
@@ -65,7 +65,7 @@ function Equipment() {
                 .catch((err) => console.error(err));
         } else {
             api
-                .post(`https://localhost:5001/api/equipment`, data)
+                .post(`http://localhost:5000/api/equipment`, data)
                 .then(() => {
                     fetchEquipments();
                     setView("list");

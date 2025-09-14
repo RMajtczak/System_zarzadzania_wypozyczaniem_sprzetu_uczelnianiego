@@ -15,8 +15,8 @@ const ReservationPanel = () => {
 
     const fetchEquipments = (query = "") => {
         const url = query
-            ? `https://localhost:5001/api/equipment/search?name=${encodeURIComponent(query)}`
-            : `https://localhost:5001/api/equipment`;
+            ? `http://localhost:5000/api/equipment/search?name=${encodeURIComponent(query)}`
+            : `http://localhost:5000/api/equipment`;
 
         api
             .get(url)
@@ -64,7 +64,7 @@ const ReservationPanel = () => {
             return;
         }
 
-        api.post("https://localhost:5001/api/reservations", reservationData, {
+        api.post("http://localhost:5000/api/reservations", reservationData, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,

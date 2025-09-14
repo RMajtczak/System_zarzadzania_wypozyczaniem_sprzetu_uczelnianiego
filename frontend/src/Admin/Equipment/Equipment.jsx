@@ -6,16 +6,17 @@ import EquipmentForm from "./EquipmentForm";
 function Equipment() {
     const [equipments, setEquipments] = useState([]);
     const [search, setSearch] = useState("");
-    const [view, setView] = useState("list"); // list | add | edit
+    const [view, setView] = useState("list"); 
     const [editData, setEditData] = useState(null);
 
     useEffect(() => {
         fetchEquipments();
     }, []);
 
-    // Użycie 'api' i ścieżek względnych
     const fetchEquipments = (query = "") => {
-        const url = query ? `/equipment/search?name=${encodeURIComponent(query)}` : `/equipment`;
+        const url = query
+            ? `http://localhost:5000/api/equipment/search?name=${encodeURIComponent(query)}`
+            : `http://localhost:5000/api/equipment`;
 
         api.get(url)
             .then((res) => {
@@ -42,27 +43,25 @@ function Equipment() {
         setEditData(eq);
         setView("edit");
     };
-
-    // Użycie 'api' i ścieżek względnych
+    
     const handleDelete = (id) => {
         if (window.confirm("Czy na pewno chcesz usunąć ten sprzęt?")) {
-            api.delete(`/equipment/${id}`)
+            api.delete(`http://localhost:5000/api/equipment/${id}`)
                 .then(() => fetchEquipments())
                 .catch((err) => console.error(err));
         }
     };
-
-    // Użycie 'api' i ścieżek względnych
+    
     const handleSave = (data, isEdit) => {
         if (isEdit) {
-            api.put(`/equipment/${editData.id}`, data)
+            api.put(`http://localhost:5000/api/equipment/${editData.id}`, data)
                 .then(() => {
                     fetchEquipments();
                     setView("list");
                 })
                 .catch((err) => console.error(err));
         } else {
-            api.post(`/equipment`, data)
+            api.post(`http://localhost:5000/api/equipment`, data)
                 .then(() => {
                     fetchEquipments();
                     setView("list");

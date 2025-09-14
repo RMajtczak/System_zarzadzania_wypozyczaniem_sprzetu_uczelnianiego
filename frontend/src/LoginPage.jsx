@@ -12,7 +12,7 @@ function LoginPage() {
         setError('');
 
         try {
-            const response = await axios.post('https://localhost:5001/api/account/login', {
+            const response = await axios.post('http://localhost:5000/api/account/login', {
                 Email: email,
                 Password: password
             }, {

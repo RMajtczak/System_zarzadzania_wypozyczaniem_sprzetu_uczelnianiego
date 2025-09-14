@@ -25,14 +25,13 @@ try
     logger.Info("Start aplikacji");
 
     var builder = WebApplication.CreateBuilder(args);
+    
+    QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
     builder.Logging.ClearProviders();
     builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     builder.Host.UseNLog();
-
-    //var authenticationSettings = new AutenticationSettings();
-    //builder.Configuration.GetSection("Authentication").Bind(authenticationSettings);
-    //builder.Services.AddSingleton(authenticationSettings);
+    
 
     builder.Services.AddAuthentication(option =>
     {
@@ -43,10 +42,10 @@ try
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,       // Kto wydał token (np. "your-api")
-            ValidateAudience = true,     // Dla kogo jest token (np. "your-client")
-            ValidateLifetime = true,     // Czy sprawdzać czas życia tokenu
-            ValidateIssuerSigningKey = true, // Czy walidować klucz
+            ValidateIssuer = true,       
+            ValidateAudience = true,     
+            ValidateLifetime = true,     
+            ValidateIssuerSigningKey = true, 
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
@@ -89,9 +88,7 @@ try
     builder.Services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
     builder.Services.AddSwaggerGen();
     builder.Services.AddAutoMapper(typeof(Program));
-
-    // Dodaj Prometheus
-    builder.Services.AddSingleton<CollectorRegistry>(); // rejestr dla metryk
+    
 
     var app = builder.Build();
 
@@ -118,27 +115,7 @@ try
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Wypożyczalnia Sprzętu API ");
     });
-
-    // Prometheus middleware
-    app.UseHttpMetrics(); // automatyczne liczenie requestów i czasów
-    app.MapMetrics("/metrics"); // endpoint /metrics dla Prometheus
-
-    // Health Check endpoint
-    app.MapGet("/health", async (RentalDbContext db) =>
-    {
-        try
-        {
-            bool dbOk = await db.Database.CanConnectAsync();
-            if (dbOk)
-                return Results.Ok(new { status = "Healthy", db = dbOk });
-            else
-                return Results.Json(new { status = "Unhealthy", db = dbOk }, statusCode: 503);
-        }
-        catch
-        {
-            return Results.Json(new { status = "Unhealthy", db = false }, statusCode: 503);
-        }
-    });
+    
 
     app.MapControllers();
     app.Run();

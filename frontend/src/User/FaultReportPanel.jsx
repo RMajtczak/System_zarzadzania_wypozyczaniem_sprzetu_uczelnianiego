@@ -5,7 +5,7 @@ function FaultReportPanel() {
     const [equipmentName, setEquipmentName] = useState('');
     const [userName, setUserName]= useState('');
     const [description, setDescription] = useState('');
-    const [error, setError] = useState(null); // ustawiamy null, bo to może być obiekt lub string
+    const [error, setError] = useState(null);
     const [success, setSuccess] = useState('');
 
     const handleSubmit = async (e) => {
@@ -16,7 +16,7 @@ function FaultReportPanel() {
         
 
         try {
-            await api.post('https://localhost:5001/api/faultreports', {
+            await api.post('http://localhost:5000/api/faultreports', {
                 equipmentName,
                 userName,
                 description,

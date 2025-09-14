@@ -2,21 +2,19 @@ import React, { useEffect, useState } from "react";
 import api from "../../api";
 
 export default function UserList() {
-    const [users, setUsers] = useState([]); // tablica użytkowników
+    const [users, setUsers] = useState([]); 
     const [loading, setLoading] = useState(true);
-
-    // Role na sztywno
+    
     const [roles] = useState([
         { id: 1, name: "User" },
         { id: 2, name: "Manager" },
         { id: 3, name: "Admin" },
     ]);
-
-    // Pobieranie użytkowników z backendu
+    
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await api.get("https://localhost:5001/api/users"); // pełny URL
+                const res = await api.get("http://localhost:5000/api/users");
                 if (Array.isArray(res.data)) {
                     setUsers(res.data);
                 } else {
@@ -33,11 +31,10 @@ export default function UserList() {
 
         fetchUsers();
     }, []);
-
-    // Zmiana roli użytkownika
+    
     const handleRoleChange = async (userId, newRoleId) => {
         try {
-            await api.put(`https://localhost:5001/api/users/update-role/${userId}`, {
+            await api.put(`http://localhost:5000/api/users/update-role/${userId}`, {
                 roleId: parseInt(newRoleId),
             });
 
