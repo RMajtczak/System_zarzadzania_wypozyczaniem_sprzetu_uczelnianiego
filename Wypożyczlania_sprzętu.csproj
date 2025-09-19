@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -90,6 +90,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Aspire.Hosting" Version="9.4.2" />
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
       <PackageReference Include="FluentAssertions" Version="8.6.0" />
       <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
@@ -97,6 +98,7 @@
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-preview.4.25258.110" />
       <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.9" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.4.25258.110" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0-preview.1.25081.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0-preview.4.25258.110" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0-preview.4.25258.110">
         <PrivateAssets>all</PrivateAssets>
@@ -109,8 +111,17 @@
       <PackageReference Include="NLog.Web.AspNetCore" Version="5.4.0" />
       <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
       <PackageReference Include="QuestPDF" Version="2025.12.0-alpha0" />
+      <PackageReference Include="ServiceDefaults" Version="1.0.1" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
       <PackageReference Include="xunit.extensibility.core" Version="2.9.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\dist\assets\index-C6RROg9B.css" />
+      <None Include="wwwroot\dist\assets\index-F5W2O1Y3.js" />
+      <None Include="wwwroot\dist\icon.jpg" />
+      <None Include="wwwroot\dist\index.html" />
+      <None Include="wwwroot\dist\vite.svg" />
     </ItemGroup>
 
 </Project>

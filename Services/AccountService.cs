@@ -62,8 +62,6 @@ public class AccountService : IAccountService
             new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
             new Claim(ClaimTypes.Role, user.Role.Name)
         };
-
-        // Użyj _configuration do odczytu wartości z sekcji "Jwt"
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expirationDate = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:ExpireDays"]));

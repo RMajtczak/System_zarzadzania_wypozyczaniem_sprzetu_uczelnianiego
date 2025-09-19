@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -50,9 +52,10 @@ public class BorrowingControllerTests : IClassFixture<CustomWebApplicationFactor
     public async Task GetById_ShouldReturnOk_WithBorrowing()
     {
         // Arrange
+        var borrowingId = 50;
         var borrowing = new BorrowingDto
         {
-            Id = 50,
+            Id = borrowingId,
             EquipmentId = 10,
             EquipmentName = "Laptop",
             BorrowerName = "Jan Kowalski",
@@ -60,11 +63,11 @@ public class BorrowingControllerTests : IClassFixture<CustomWebApplicationFactor
         };
 
         _factory.BorrowingServiceMock
-            .Setup(s => s.GetBorrowingById(1))
+            .Setup(s => s.GetBorrowingById(borrowingId))
             .Returns(borrowing);
 
         // Act
-        var response = await _client.GetAsync("/api/borrowings/1");
+        var response = await _client.GetAsync($"/api/borrowings/{borrowingId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -85,42 +88,46 @@ public class BorrowingControllerTests : IClassFixture<CustomWebApplicationFactor
             EndDate = DateTime.Today.AddDays(7)
         };
 
+        var newBorrowingId = 123;
+
         _factory.BorrowingServiceMock
             .Setup(s => s.AddBorrow(It.IsAny<AddBorrowDto>()))
-            .Returns(123);
+            .Returns(newBorrowingId);
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/borrowings", dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-        response.Headers.Location!.ToString().Should().Be("api/borrowing/123");
+        response.Headers.Location!.ToString().Should().Be($"/api/borrowings/{newBorrowingId}");
     }
 
     [Fact]
     public async Task DeleteBorrowing_ShouldReturnNoContent()
     {
         // Arrange
+        var borrowingId = 1;
         _factory.BorrowingServiceMock
-            .Setup(s => s.DeleteBorrowing(1));
+            .Setup(s => s.DeleteBorrowing(borrowingId));
 
         // Act
-        var response = await _client.DeleteAsync("/api/borrowings/1");
+        var response = await _client.DeleteAsync($"/api/borrowings/{borrowingId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        _factory.BorrowingServiceMock.Verify(s => s.DeleteBorrowing(1), Times.Once);
+        _factory.BorrowingServiceMock.Verify(s => s.DeleteBorrowing(borrowingId), Times.Once);
     }
 
     [Fact]
     public async Task Return_ShouldReturnOk()
     {
         // Arrange
+        var borrowingId = 1;
         _factory.BorrowingServiceMock
-            .Setup(s => s.Return(1));
+            .Setup(s => s.Return(borrowingId));
 
         // Act
-        var response = await _client.PatchAsync("/api/borrowings/1", null);
+        var response = await _client.PatchAsync($"/api/borrowings/{borrowingId}", null);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
